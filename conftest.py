@@ -1,5 +1,5 @@
 import pytest
-from playwright.sync_api import sync_playwright
+
 from api.reqres_api import ReqResAPI
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
@@ -8,12 +8,22 @@ from pages.inventory_page import InventoryPage
 
 
 @pytest.fixture(scope="session")
-def api_context():
-    with sync_playwright() as p:
-        # Simple and clean context for standard APIs
-        request_context = p.request.new_context()
-        yield request_context
-        request_context.dispose()
+def api_context(playwright):
+
+    browser = playwright.chromium.launch(headless=True)
+
+    context = browser.new_context(
+        base_url="https://jsonplaceholder.typicode.com",  # אופציונלי: הגדרת URL בסיס
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
+
+    api_request_context = context.request
+
+    yield api_request_context
+
+    # סגירה מסודרת
+    context.close()
+    browser.close()
 
 
 @pytest.fixture
