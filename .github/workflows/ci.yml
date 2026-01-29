@@ -1,0 +1,52 @@
+name: Spacial QA Automation CI
+
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests (UI & API)
+    runs-on: ubuntu-latest
+    
+    steps:
+    # שלב 1: משיכת הקוד מהגיט
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # שלב 2: התקנת Python
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip' # אופטימיזציה: שומר את החבילות בזיכרון לריצות הבאות
+
+    # שלב 3: התקנת החבילות (pytest, playwright, etc.)
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # שלב 4: התקנת הדפדפנים של Playwright + תלויות לינוקס
+    - name: Install Playwright Browsers
+      run: playwright install --with-deps
+
+    # שלב 5: הרצת הטסטים (API + UI)
+    
+    - name: Run Pytest
+      run: pytest --html=report.html
+
+    # שלב 6: שמירת הדוח כ-Artifact
+    
+    - name: Upload Test Report
+      if: always() 
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-report
+        path: |
+          report.html
+          assets/
+        retention-days: 30
