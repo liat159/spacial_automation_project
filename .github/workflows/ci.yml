@@ -32,7 +32,7 @@ jobs:
 
     # שלב 4: התקנת הדפדפנים של Playwright + תלויות לינוקס
     - name: Install Playwright Browsers
-      run: playwright install --with-deps
+      run: python -m playwright install --with-deps
 
     # שלב 5: הרצת הטסטים (API + UI)
     
